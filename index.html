@@ -51,6 +51,18 @@
     }
 
     updateDashboard();
+    async function updateDashboard() {
+        console.log("Mencoba mengambil data..."); // Tambahkan ini
+        const { data, error } = await supabase
+            .from('finance_transactions')
+            .select('*');
+
+        if (error) {
+            console.error("Error dari Supabase:", error); // Lihat pesan error detilnya
+        } else {
+            console.log("Data diterima:", data); // Lihat apakah data masuk sini
+        }
+    }
 </script>
 </body>
 </html>
