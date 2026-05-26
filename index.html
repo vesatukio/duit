@@ -17,36 +17,40 @@
         </div>
     </div>
 
-    <script>
-        // 1. Inisialisasi Supabase (Gunakan kunci yang sudah Anda Regenerate)
-        const SUPABASE_URL = 'https://opgeeqnucxrdqcgwcuge.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2VlcW51Y3hyZHFjZ3djdWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMTgzODAsImV4cCI6MjA5NDU5NDM4MH0.yT10QOFErxHbTL8X-QOUQ8EydcJuLpStCbd8ucfTJr8';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script>
+    // Pastikan URL dan KEY Anda benar
+    const SUPABASE_URL = 'https://opgeeqnucxrdqcgwcuge.supabase.co';
+    const SUPABASE_KEY = 'MASUKKAN_KUNCI_ANON_BARU_DI_SINI';
 
-        // 2. Fungsi untuk mengambil data
-        async function updateDashboard() {
-            const { data, error } = await supabase
-                .from('finance_transactions')
-                .select('*')
-                .order('created_at', { ascending: false });
+    // Inisialisasi hanya sekali
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            if (data) {
-                const container = document.getElementById('data-container');
-                container.innerHTML = data.map(item => `
-                    <div class="bg-white p-3 rounded shadow flex justify-between">
-                        <span>${item.description}</span>
-                        <span class="${item.type === 'masuk' ? 'text-green-500' : 'text-red-500'} font-bold">
-                            ${item.type === 'masuk' ? '+' : '-'} Rp ${item.amount}
-                        </span>
-                    </div>
-                `).join('');
-            } else if (error) {
-                console.error("Error:", error);
-            }
+    async function updateDashboard() {
+        // Coba ambil data
+        const { data, error } = await supabase
+            .from('finance_transactions')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error("Gagal ambil data:", error);
+            return;
         }
 
-        // 3. Jalankan fungsi saat halaman dibuka
-        updateDashboard();
-    </script>
+        if (data) {
+            const container = document.getElementById('data-container');
+            container.innerHTML = data.map(item => `
+                <div class="bg-white p-3 rounded shadow flex justify-between">
+                    <span>${item.description}</span>
+                    <span class="font-bold ${item.type === 'masuk' ? 'text-green-500' : 'text-red-500'}">
+                        ${item.type === 'masuk' ? '+' : '-'} Rp ${item.amount}
+                    </span>
+                </div>
+            `).join('');
+        }
+    }
+
+    updateDashboard();
+</script>
 </body>
 </html>
