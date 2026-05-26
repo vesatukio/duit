@@ -4,45 +4,49 @@
     <meta charset="UTF-8">
     <title>Keuangan Pribadi</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Library Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 p-6">
     <div class="max-w-4xl mx-auto">
         <h1 class="text-2xl font-bold mb-4">Laporan Keuangan</h1>
-        <div id="tabel-data" class="bg-white p-4 rounded shadow">
-            <!-- Data akan muncul di sini -->
+
+        <div class="mt-8">
+            <h2 class="text-xl font-bold mb-4">Laporan Transaksi</h2>
+            <div id="data-container" class="space-y-2">
+                </div>
         </div>
     </div>
 
     <script>
-        // MASUKKAN KUNCI ANDA DI SINI
-        const SUPABASE_URL = 'sb_publishable_uqah55SK8ZjyugWprFnFMA_QnyVdCLA';
+        // 1. Inisialisasi Supabase (Gunakan kunci yang sudah Anda Regenerate)
+        const SUPABASE_URL = 'https://opgeeqnucxrdqcgwcuge.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2VlcW51Y3hyZHFjZ3djdWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMTgzODAsImV4cCI6MjA5NDU5NDM4MH0.yT10QOFErxHbTL8X-QOUQ8EydcJuLpStCbd8ucfTJr8';
-        
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function fetchData() {
+        // 2. Fungsi untuk mengambil data
+        async function updateDashboard() {
             const { data, error } = await supabase
                 .from('finance_transactions')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error("Gagal mengambil data:", error);
-                return;
+            if (data) {
+                const container = document.getElementById('data-container');
+                container.innerHTML = data.map(item => `
+                    <div class="bg-white p-3 rounded shadow flex justify-between">
+                        <span>${item.description}</span>
+                        <span class="${item.type === 'masuk' ? 'text-green-500' : 'text-red-500'} font-bold">
+                            ${item.type === 'masuk' ? '+' : '-'} Rp ${item.amount}
+                        </span>
+                    </div>
+                `).join('');
+            } else if (error) {
+                console.error("Error:", error);
             }
-
-            const container = document.getElementById('tabel-data');
-            container.innerHTML = data.map(item => `
-                <div class="border-b py-2">
-                    <p class="font-bold">${item.description} - Rp ${item.amount}</p>
-                    <p class="text-sm text-gray-500">${item.type} | ${new Date(item.created_at).toLocaleDateString()}</p>
-                </div>
-            `).join('');
         }
 
-        fetchData();
+        // 3. Jalankan fungsi saat halaman dibuka
+        updateDashboard();
     </script>
 </body>
 </html>
