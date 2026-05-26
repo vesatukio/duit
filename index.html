@@ -20,12 +20,14 @@
     </div>
 
 <script>
-    // Inisialisasi Supabase - Perhatikan huruf 'S' besar pada Supabase
+    // 1. Definisikan konfigurasi
     const SUPABASE_URL = 'https://opgeeqnucxrdqcgwcuge.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2VlcW51Y3hyZHFjZ3djdWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMTgzODAsImV4cCI6MjA5NDU5NDM4MH0.yT10QOFErxHbTL8X-QOUQ8EydcJuLpStCbd8ucfTJr8';
 
+    // 2. Inisialisasi KLIEN (Gunakan supabase.createClient, bukan supabase.supabase.createClient)
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // 3. Fungsi ambil data
     async function updateDashboard() {
         const container = document.getElementById('data-container');
         const loading = document.getElementById('loading');
@@ -40,13 +42,13 @@
 
             loading.classList.add('hidden');
             
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 container.innerHTML = '<p class="text-center text-slate-400">Belum ada transaksi.</p>';
                 return;
             }
 
             container.innerHTML = data.map(item => `
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center transition hover:shadow-md">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
                     <div>
                         <p class="font-semibold text-slate-800">${item.description || 'Tanpa deskripsi'}</p>
                         <p class="text-xs text-slate-400">${new Date(item.created_at).toLocaleDateString('id-ID')}</p>
@@ -58,11 +60,12 @@
             `).join('');
 
         } catch (err) {
-            loading.innerText = "Gagal memuat data. Periksa konsol.";
             console.error("Error Detail:", err);
+            loading.innerText = "Gagal memuat data. Periksa konsol.";
         }
     }
 
+    // 4. Jalankan sekali saja
     updateDashboard();
 </script>
 </body>
