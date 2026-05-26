@@ -2,67 +2,68 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Keuangan Pribadi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-2xl font-bold mb-4">Laporan Keuangan</h1>
+<body class="bg-slate-50 min-h-screen">
+    <div class="max-w-2xl mx-auto p-6">
+        <header class="mb-8">
+            <h1 class="text-3xl font-extrabold text-slate-800">Laporan Keuangan</h1>
+            <p class="text-slate-500">Rekap transaksi masuk dan keluar</p>
+        </header>
 
-        <div class="mt-8">
-            <h2 class="text-xl font-bold mb-4">Laporan Transaksi</h2>
-            <div id="data-container" class="space-y-2">
-                </div>
-        </div>
+        <div id="loading" class="text-center py-10 text-slate-400">Memuat data...</div>
+
+        <div id="data-container" class="space-y-4"></div>
     </div>
 
 <script>
-    // Pastikan URL dan KEY Anda benar
+    // Inisialisasi Supabase - Perhatikan huruf 'S' besar pada Supabase
     const SUPABASE_URL = 'https://opgeeqnucxrdqcgwcuge.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2VlcW51Y3hyZHFjZ3djdWdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMTgzODAsImV4cCI6MjA5NDU5NDM4MH0.yT10QOFErxHbTL8X-QOUQ8EydcJuLpStCbd8ucfTJr8';
 
-    // Inisialisasi hanya sekali
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function updateDashboard() {
-        // Coba ambil data
-        const { data, error } = await supabase
-            .from('finance_transactions')
-            .select('*')
-            .order('created_at', { ascending: false });
+        const container = document.getElementById('data-container');
+        const loading = document.getElementById('loading');
 
-        if (error) {
-            console.error("Gagal ambil data:", error);
-            return;
-        }
+        try {
+            const { data, error } = await supabase
+                .from('finance_transactions')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-        if (data) {
-            const container = document.getElementById('data-container');
+            if (error) throw error;
+
+            loading.classList.add('hidden');
+            
+            if (data.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-400">Belum ada transaksi.</p>';
+                return;
+            }
+
             container.innerHTML = data.map(item => `
-                <div class="bg-white p-3 rounded shadow flex justify-between">
-                    <span>${item.description}</span>
-                    <span class="font-bold ${item.type === 'masuk' ? 'text-green-500' : 'text-red-500'}">
-                        ${item.type === 'masuk' ? '+' : '-'} Rp ${item.amount}
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center transition hover:shadow-md">
+                    <div>
+                        <p class="font-semibold text-slate-800">${item.description || 'Tanpa deskripsi'}</p>
+                        <p class="text-xs text-slate-400">${new Date(item.created_at).toLocaleDateString('id-ID')}</p>
+                    </div>
+                    <span class="font-bold px-3 py-1 rounded-lg ${item.type === 'masuk' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}">
+                        ${item.type === 'masuk' ? '+' : '-'} Rp ${item.amount.toLocaleString()}
                     </span>
                 </div>
             `).join('');
+
+        } catch (err) {
+            loading.innerText = "Gagal memuat data. Periksa konsol.";
+            console.error("Error Detail:", err);
         }
     }
 
     updateDashboard();
-    async function updateDashboard() {
-        console.log("Mencoba mengambil data..."); // Tambahkan ini
-        const { data, error } = await supabase
-            .from('finance_transactions')
-            .select('*');
-
-        if (error) {
-            console.error("Error dari Supabase:", error); // Lihat pesan error detilnya
-        } else {
-            console.log("Data diterima:", data); // Lihat apakah data masuk sini
-        }
-    }
 </script>
 </body>
 </html>
